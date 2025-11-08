@@ -29,6 +29,17 @@ DEBUG = False
 ALLOWED_HOSTS = ['footballdaily.live', 'www.footballdaily.live']
 
 
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',  # Required for collectstatic
+    'blog',  # Your blog app
+]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
