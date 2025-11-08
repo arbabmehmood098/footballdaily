@@ -1,0 +1,500 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Latest Football News - FootballDaily.live{% endblock %}
+
+{% block description %}Stay updated with the latest football news, transfer updates, and match analysis from around the world.{% endblock %}
+
+{% block keywords %}football news, latest news, transfer news, match updates, football daily{% endblock %}
+
+{% block content %}
+<div class="news-page">
+    <!-- Hero Section -->
+    <div class="news-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Latest Football News</h1>
+                <p class="hero-subtitle">Stay updated with the latest stories from the world of football</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ news.paginator.count }}</span>
+                        <span class="stat-label">Total Articles</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">8</span>
+                        <span class="stat-label">Leagues Covered</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Updates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="padding: 2rem 0;">
+    
+    {% if news %}
+    <div class="news-grid">
+        {% for article in news %}
+                <article class="news-card enhanced-card" 
+                    data-title="{{ article.title|escapejs }}"
+                    data-author="{{ article.author|escapejs }}"
+                    data-date="{{ article.published_at|date:'d M, Y' }}"
+                    data-league="{{ article.get_league_display|escapejs }}"
+                    data-category="{{ article.category.name|escapejs }}"
+                    data-excerpt="{% if article.excerpt %}{{ article.excerpt|escapejs }}{% else %}{{ article.content|truncatewords:30|escapejs }}{% endif %}"
+                    data-content="{{ article.content|escapejs }}"
+                    data-image="{% if article.featured_image %}{{ article.featured_image.url }}{% else %}none{% endif %}"
+                    data-article-id="{{ article.id }}"
+                    onclick="openBlogModalFromCard(this)" 
+                    style="cursor: pointer;">
+                    <div class="article-image">
+                        {% if article.featured_image %}
+                            <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" />
+                        {% else %}
+                            <div class="no-image-placeholder">
+                                <span>📰</span>
+                                <p>No Image</p>
+                            </div>
+                        {% endif %}
+                        {% if article.is_live %}
+                        <div class="live-badge">LIVE</div>
+                        {% endif %}
+                        {% if article.is_featured %}
+                        <div class="featured-badge">FEATURED</div>
+                        {% endif %}
+                    </div>
+                    <div class="article-content">
+                        <div class="article-categories">
+                            <span class="category-tag league-tag">{{ article.get_league_display }}</span>
+                            <span class="category-tag category-tag">{{ article.category.name }}</span>
+                        </div>
+                        <h2 class="article-title">
+                            {{ article.title }}
+                        </h2>
+                        <div class="article-meta">
+                            <span class="author">
+                                <span class="author-icon">👤</span>
+                                {{ article.author }}
+                            </span>
+                            <span class="date">
+                                <span class="date-icon">📅</span>
+                                {{ article.published_at|date:"d M, Y" }}
+                            </span>
+                        </div>
+                        <p class="article-excerpt">
+                            {% if article.excerpt %}
+                                {{ article.excerpt }}
+                            {% else %}
+                                {{ article.content|truncatewords:30 }}
+                            {% endif %}
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-actions">
+                                <span class="read-more">Read More →</span>
+                                <div class="social-share">
+                                    <button class="share-btn" onclick="shareArticle('{{ article.title|escapejs }}', '{{ request.build_absolute_uri }}')" aria-label="Share article">
+                                        <span>📤</span> Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if news.has_other_pages %}
+    <div class="pagination">
+        {% if news.has_previous %}
+            <a href="?page=1" class="pagination-link">First</a>
+            <a href="?page={{ news.previous_page_number }}" class="pagination-link">Previous</a>
+        {% endif %}
+        
+        <span class="pagination-info">
+            Page {{ news.number }} of {{ news.paginator.num_pages }}
+        </span>
+        
+        {% if news.has_next %}
+            <a href="?page={{ news.next_page_number }}" class="pagination-link">Next</a>
+            <a href="?page={{ news.paginator.num_pages }}" class="pagination-link">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- No Articles Message -->
+    <div class="no-articles">
+        <h3>No articles found</h3>
+        <p>Check back soon for the latest football news and updates!</p>
+        <p><a href="/admin/" class="button">Add your first article</a></p>
+    </div>
+    {% endif %}
+    </div>
+</div>
+
+<style>
+/* News Page Specific Styles */
+.news-page {
+    min-height: 100vh;
+}
+
+.news-hero {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: slideInFromLeft 1.2s ease-out 0.3s both;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    animation: slideInFromRight 1.2s ease-out 0.6s both;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    animation: fadeInUp 1s ease-out 0.9s both;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    animation: scaleIn 0.8s ease-out both;
+}
+
+.stat-item:nth-child(1) { animation-delay: 1.2s; }
+.stat-item:nth-child(2) { animation-delay: 1.4s; }
+.stat-item:nth-child(3) { animation-delay: 1.6s; }
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.news-card {
+    background: white;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid var(--neutral-light);
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.article-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.news-card:hover .article-image img {
+    transform: scale(1.05);
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--neutral-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+}
+
+.no-image-placeholder span {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.live-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--highlight-red);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.article-content {
+    padding: 1.5rem;
+}
+
+.article-categories {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.category-tag {
+    background: var(--accent-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.article-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+}
+
+.article-excerpt {
+    color: var(--secondary-text);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Enhanced Blog Card Styles */
+.enhanced-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+.enhanced-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.featured-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--highlight-gold);
+    color: var(--primary-text);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.league-tag {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.category-tag {
+    background: var(--neutral-gray);
+    color: var(--primary-text);
+}
+
+.author-icon,
+.date-icon {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+}
+
+.article-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--neutral-gray);
+}
+
+.read-more {
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.enhanced-card:hover .read-more {
+    color: var(--accent-primary-hover);
+    transform: translateX(5px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .news-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .article-content {
+        padding: 1rem;
+    }
+    
+    .article-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Hero Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Text Animation for Title */
+.hero-content h1 {
+    overflow: hidden;
+    position: relative;
+}
+
+.hero-content h1::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s ease-in-out 2.5s;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Pulse Animation for Stats */
+.stat-number {
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: 3s;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+</style>
+{% endblock %}

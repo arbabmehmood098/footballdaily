@@ -1,0 +1,772 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ league_name }} News & Updates - FootballDaily.live{% endblock %}
+
+{% block description %}Get the latest {{ league_name }} news, transfer updates, and match analysis. Stay updated with all the action from {{ league_name }}.{% endblock %}
+
+{% block keywords %}{{ league_name }}, football news, transfer news, match updates, {{ league_name|lower }} news{% endblock %}
+
+{% block content %}
+<div class="league-page">
+    <!-- League Hero Section -->
+    <div class="league-hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="league-info">
+                    <h1>{% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="padding: 2rem 0;">
+        <div class="section-header">
+            <h2>{% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %} News & Updates</h2>
+            <p>Stay updated with the latest stories from {% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %}</p>
+        </div>
+        
+        <div class="blog-layout">
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- Dynamic Blog Articles -->
+            {% if news %}
+                {% for article in news %}
+                <article class="blog-card enhanced-card" 
+                    data-title="{{ article.title|escapejs }}"
+                    data-author="{{ article.author|escapejs }}"
+                    data-date="{{ article.published_at|date:'d M, Y' }}"
+                    data-league="{{ league_name|escapejs }}"
+                    data-category="{{ article.category.name|escapejs }}"
+                    data-excerpt="{% if article.excerpt %}{{ article.excerpt|escapejs }}{% else %}{{ article.content|truncatewords:30|escapejs }}{% endif %}"
+                    data-content="{{ article.content|escapejs }}"
+                    data-image="{% if article.featured_image %}{{ article.featured_image.url }}{% else %}none{% endif %}"
+                    data-article-id="{{ article.id }}"
+                    onclick="openBlogModalFromCard(this)" 
+                    style="cursor: pointer;">
+                    <div class="article-image">
+                        {% if article.featured_image %}
+                            <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" />
+                        {% else %}
+                            <div class="no-image-placeholder">
+                                <span>📰</span>
+                                <p>No Image</p>
+                            </div>
+                        {% endif %}
+                        {% if article.is_live %}
+                        <div class="live-badge">LIVE</div>
+                        {% endif %}
+                        {% if article.is_featured %}
+                        <div class="featured-badge">FEATURED</div>
+                        {% endif %}
+                    </div>
+                    <div class="article-content">
+                        <div class="article-categories">
+                            <span class="category-tag league-tag">{% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %}</span>
+                            <span class="category-tag category-tag">{{ article.category.name }}</span>
+                        </div>
+                        <h2 class="article-title">
+                            {{ article.title }}
+                        </h2>
+                        <div class="article-meta">
+                            <span class="author">
+                                <span class="author-icon">👤</span>
+                                {{ article.author }}
+                            </span>
+                            <span class="date">
+                                <span class="date-icon">📅</span>
+                                {{ article.published_at|date:"d M, Y" }}
+                            </span>
+                        </div>
+                        <p class="article-excerpt">
+                            {% if article.excerpt %}
+                                {{ article.excerpt }}
+                            {% else %}
+                                {{ article.content|truncatewords:30 }}
+                            {% endif %}
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-actions">
+                                <span class="read-more">Read More →</span>
+                                <div class="social-share">
+                                    <button class="share-btn" onclick="shareArticle('{{ article.title|escapejs }}', '{{ request.build_absolute_uri }}')" aria-label="Share article">
+                                        <span>📤</span> Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if news.has_other_pages %}
+                <div class="pagination">
+                    {% if news.has_previous %}
+                        <a href="?page=1" class="pagination-link">First</a>
+                        <a href="?page={{ news.previous_page_number }}" class="pagination-link">Previous</a>
+                    {% endif %}
+                    
+                    <span class="pagination-info">
+                        Page {{ news.number }} of {{ news.paginator.num_pages }}
+                    </span>
+                    
+                    {% if news.has_next %}
+                        <a href="?page={{ news.next_page_number }}" class="pagination-link">Next</a>
+                        <a href="?page={{ news.paginator.num_pages }}" class="pagination-link">Last</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <!-- No articles message -->
+                <div class="no-articles">
+                    <h3>No articles found for {% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %}</h3>
+                    <p>Check back soon for the latest {% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %} news and updates!</p>
+                </div>
+            {% endif %}
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-widget">
+                <h3>Quick Search</h3>
+                <div class="search-form">
+                    <input type="text" placeholder="Search {% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %} articles..." class="search-input">
+                    <button class="search-btn">Search</button>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>{% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %} Teams</h3>
+                <div class="team-grid">
+                    {% if league_name == 'Premier League' %}
+                        <a href="#" class="team-card"><span class="team-name">Arsenal</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Aston Villa</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Bournemouth</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Brentford</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Brighton & Hove Albion</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Burnley</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Chelsea</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Crystal Palace</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Everton</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Fulham</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Leeds United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Liverpool</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Manchester City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Manchester United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Newcastle United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Nottingham Forest</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sunderland</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Tottenham Hotspur</span></a>
+                        <a href="#" class="team-card"><span class="team-name">West Ham United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Wolverhampton Wanderers</span></a>
+                    {% elif league_name == 'Serie A' %}
+                        <a href="#" class="team-card"><span class="team-name">Atalanta</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Bologna</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Cagliari</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Como</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Cremonese</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Fiorentina</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Genoa</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Hellas Verona</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Inter Milan</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Juventus</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lazio</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lecce</span></a>
+                        <a href="#" class="team-card"><span class="team-name">AC Milan</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Napoli</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Parma</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Pisa</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Roma</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sassuolo</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Torino</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Udinese</span></a>
+                    {% elif league_name == 'Bundesliga' %}
+                        <a href="#" class="team-card"><span class="team-name">Bayer Leverkusen</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Bayern Munich</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Borussia Dortmund</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Borussia Mönchengladbach</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Eintracht Frankfurt</span></a>
+                        <a href="#" class="team-card"><span class="team-name">FC Augsburg</span></a>
+                        <a href="#" class="team-card"><span class="team-name">FC Köln</span></a>
+                        <a href="#" class="team-card"><span class="team-name">FC St. Pauli</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Freiburg</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Hamburg</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Heidenheim</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Hertha Berlin</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Hoffenheim</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Mainz 05</span></a>
+                        <a href="#" class="team-card"><span class="team-name">RB Leipzig</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Schalke 04</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Stuttgart</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Union Berlin</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Werder Bremen</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Wolfsburg</span></a>
+                    {% elif league_name == 'Ligue 1' %}
+                        <a href="#" class="team-card"><span class="team-name">PSG</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Marseille</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lyon</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Monaco</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lille</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Nice</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Rennes</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lens</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Toulouse</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Nantes</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Strasbourg</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Brest</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Metz</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Le Havre</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Lorient</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Angers</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Paris FC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Auxerre</span></a>
+                    {% elif league_name == 'La Liga' %}
+                        <a href="#" class="team-card"><span class="team-name">Alavés</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Athletic Bilbao</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Atlético Madrid</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Barcelona</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Celta Vigo</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Elche</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Espanyol</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Getafe</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Girona</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Levante</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Mallorca</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Osasuna</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Real Oviedo</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Real Betis</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Real Madrid</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Rayo Vallecano</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Real Sociedad</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sevilla</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Valencia</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Villarreal</span></a>
+                    {% elif league_name == 'MLS' %}
+                        <a href="#" class="team-card"><span class="team-name">Atlanta United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Austin FC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Charlotte FC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Chicago Fire</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Cincinnati</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Colorado Rapids</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Columbus Crew</span></a>
+                        <a href="#" class="team-card"><span class="team-name">DC United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">FC Dallas</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Houston Dynamo</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Inter Miami</span></a>
+                        <a href="#" class="team-card"><span class="team-name">LA Galaxy</span></a>
+                        <a href="#" class="team-card"><span class="team-name">LAFC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Minnesota United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Montreal</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Nashville SC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">New England</span></a>
+                        <a href="#" class="team-card"><span class="team-name">NYCFC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">NY Red Bulls</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Orlando City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Philadelphia</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Portland</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Real Salt Lake</span></a>
+                        <a href="#" class="team-card"><span class="team-name">San Jose</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Seattle Sounders</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sporting KC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">St. Louis City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Toronto FC</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Vancouver</span></a>
+                    {% elif league_name == 'Süper Lig' %}
+                        <a href="#" class="team-card"><span class="team-name">Galatasaray</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Fenerbahce</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Besiktas</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Trabzonspor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Konyaspor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Caykur Rizespor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Reeder Samsunspor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Bellona Kayserispor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Basaksehir</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Kocaelispor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Gençlerbirligi</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Fatih Karagümrük</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Gaziantep FK</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Göztepe</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Eyüpspor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Kasimpasa</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Antalyaspor</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Alanyaspor</span></a>
+                    {% elif league_name == 'EFL' or league_name == 'EFL Championship' %}
+                        <a href="#" class="team-card"><span class="team-name">Birmingham City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Blackburn Rovers</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Bristol City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Charlton Athletic</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Coventry City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Derby County</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Hull City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Middlesbrough</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Millwall</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Norwich City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Oxford United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Portsmouth</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Preston North End</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Queens Park Rangers</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sheffield United</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Sheffield Wednesday</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Swansea City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Watford</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Leicester City</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Ipswich Town</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Southampton</span></a>
+                        <a href="#" class="team-card"><span class="team-name">Wrexham</span></a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link facebook" title="Facebook">f</a>
+                    <a href="#" class="social-link twitter" title="Twitter">X</a>
+                    <a href="#" class="social-link instagram" title="Instagram">📷</a>
+                    <a href="#" class="social-link youtube" title="YouTube">▶</a>
+                </div>
+                <p class="social-text">Follow us for the latest {% if league_name == 'EFL' %}EFL Championship{% else %}{{ league_name }}{% endif %} updates!</p>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>Other Leagues</h3>
+                <div class="category-list">
+                    <a href="{% url 'blog:premier_league' %}" class="category-link">Premier League</a>
+                    <a href="{% url 'blog:serie_a' %}" class="category-link">Serie A</a>
+                    <a href="{% url 'blog:bundesliga' %}" class="category-link">Bundesliga</a>
+                    <a href="{% url 'blog:ligue_1' %}" class="category-link">Ligue 1</a>
+                    <a href="{% url 'blog:la_liga' %}" class="category-link">La Liga</a>
+                    <a href="{% url 'blog:mls' %}" class="category-link">MLS</a>
+                    <a href="{% url 'blog:super_lig' %}" class="category-link">Süper Lig</a>
+                    <a href="{% url 'blog:efl' %}" class="category-link">EFL Championship</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+    </div>
+</div>
+
+<style>
+/* League Page Specific Styles */
+.league-page {
+    min-height: 100vh;
+}
+
+.league-hero {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.league-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+}
+
+.league-info {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.league-flag {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: bounceIn 1s ease-out 0.3s both;
+}
+
+.league-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+    animation: slideInFromLeft 1.2s ease-out 0.6s both;
+}
+
+.league-description {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    animation: slideInFromRight 1.2s ease-out 0.9s both;
+}
+
+.league-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0;
+    animation: fadeInUp 1s ease-out 1.2s both;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    animation: scaleIn 0.8s ease-out both;
+}
+
+.stat-item:nth-child(1) { animation-delay: 1.5s; }
+.stat-item:nth-child(2) { animation-delay: 1.7s; }
+.stat-item:nth-child(3) { animation-delay: 1.9s; }
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    color: var(--primary-text);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: var(--secondary-text);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.team-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    background: var(--neutral-light);
+    text-decoration: none;
+    color: var(--primary-text);
+    transition: all 0.3s ease;
+    border: 1px solid var(--neutral-gray);
+    text-align: center;
+}
+
+.team-card:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.team-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.social-text {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Enhanced Blog Card Styles */
+.enhanced-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+.enhanced-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.live-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--highlight-red);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+    z-index: 2;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--highlight-gold);
+    color: var(--primary-text);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.league-tag {
+    background: var(--accent-primary) !important;
+    color: white !important;
+}
+
+.league-tag:hover {
+    background: var(--accent-primary) !important;
+    color: white !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.category-tag {
+    background: var(--neutral-gray);
+    color: var(--primary-text);
+}
+
+.author-icon,
+.date-icon {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+}
+
+.article-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--neutral-gray);
+}
+
+.read-more {
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.enhanced-card:hover .read-more {
+    color: var(--accent-primary-hover);
+    transform: translateX(5px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .league-info h1 {
+        font-size: 2.5rem;
+    }
+    
+    .league-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Hero Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Text Animation for Title */
+.league-info h1 {
+    overflow: hidden;
+    position: relative;
+}
+
+.league-info h1::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s ease-in-out 2.5s;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Pulse Animation for Stats */
+.stat-number {
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: 3s;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Social Sharing Styles */
+.article-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.social-share {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.share-btn {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.share-btn:hover {
+    background: var(--accent-primary-hover);
+    transform: translateY(-2px);
+}
+
+.share-btn:active {
+    transform: translateY(0);
+}
+</style>
+
+<script>
+// Social sharing functionality
+function shareArticle(title, url) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            url: url
+        }).catch(console.error);
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+}
+</script>
+{% endblock %}

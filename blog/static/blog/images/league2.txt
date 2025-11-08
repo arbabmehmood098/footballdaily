@@ -1,0 +1,3 @@
+Placeholder for league2.jpg
+This should be replaced with league-specific images for match analysis.
+Recommended size: 200x150px or similar aspect ratio.

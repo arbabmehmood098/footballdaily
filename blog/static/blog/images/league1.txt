@@ -1,0 +1,3 @@
+Placeholder for league1.jpg
+This should be replaced with league-specific images for transfer news.
+Recommended size: 200x150px or similar aspect ratio.

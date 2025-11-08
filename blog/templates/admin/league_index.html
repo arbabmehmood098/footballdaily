@@ -1,0 +1,230 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | Football Daily Admin{% endblock %}
+
+{% block content %}
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .admin-content {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #007cba;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .header-actions a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.3s ease;
+        }
+        
+        .header-actions a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            color: #007cba;
+            margin-bottom: 1rem;
+        }
+        
+        .page-description {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .league-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .league-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .league-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #007cba;
+        }
+        
+        .league-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .league-card h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .league-card p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .league-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 124, 186, 0.2);
+        }
+        
+        .league-button:hover {
+            background: linear-gradient(135deg, #005a87 0%, #007cba 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 124, 186, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .admin-actions {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .admin-actions h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .league-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .league-card {
+                padding: 20px;
+            }
+            
+            .league-icon {
+                font-size: 40px;
+            }
+            
+            .league-card h3 {
+                font-size: 18px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                text-align: center;
+            }
+        }
+    </style>
+    
+    <div class="admin-content">
+        <div class="main-content">
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-description">Select a football league to manage its blogs and news:</p>
+        
+        <div class="league-grid">
+            {% for league in league_links %}
+            <div class="league-card">
+                <div class="league-icon">{{ league.icon }}</div>
+                <h3>{{ league.name }}</h3>
+                <p>{{ league.description }}</p>
+                <a href="{{ league.url }}" class="league-button">Manage Blogs</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="admin-actions">
+            <h2>Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="/admin/blog/news/" class="action-button">View All News</a>
+                <a href="/admin/blog/news/add/" class="action-button">Add New Article</a>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

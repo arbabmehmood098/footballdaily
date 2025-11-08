@@ -1,0 +1,38 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[type="file"][name="featured_image"]');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (2MB = 2 * 1024 * 1024 bytes)
+                const maxSize = 2 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert('Image size should not exceed 2MB. Current size: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Only JPEG, PNG, GIF, and WebP images are allowed.');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Show success message
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                console.log('Image selected: ' + file.name + ' (' + fileSizeMB + 'MB)');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

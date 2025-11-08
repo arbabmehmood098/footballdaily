@@ -1,0 +1,296 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ league_name }} Blog Management | Football Daily Admin{% endblock %}
+
+{% block content %}
+<style>
+    .league-admin-container {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .admin-header {
+        background: #007cba;
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .admin-header h1 {
+        margin: 0;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .admin-actions a {
+        color: white;
+        text-decoration: none;
+        margin: 0 1rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid white;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-actions a:hover {
+        background: white;
+        color: #007cba;
+    }
+</style>
+
+<div class="admin-header">
+    <div class="container">
+        <h1>{{ league_name }} Blog Management</h1>
+        <div class="admin-actions">
+            <a href="/">View Site</a>
+            <a href="/admin/">Admin Home</a>
+            <a href="/admin/logout/">Log out</a>
+        </div>
+    </div>
+</div>
+
+<div class="league-admin-container">
+    <div class="container">
+        <!-- Add New Blog Form -->
+        <div class="add-blog-form">
+        <h2>Add New Blog Post</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="author">Author</label>
+                    <input type="text" id="author" name="author" value="Football Daily Team">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="excerpt">Excerpt (Optional)</label>
+                    <textarea id="excerpt" name="excerpt" rows="3" placeholder="Short description of the article..."></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="content">Content *</label>
+                    <textarea id="content" name="content" rows="10" required placeholder="Write your blog post content here..."></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="featured_image">Featured Image (Optional)</label>
+                    <input type="file" id="featured_image" name="featured_image" accept="image/*">
+                    <small>Upload an image for your blog post</small>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="default">Create Blog Post</button>
+                <a href="/admin/blog/news/" class="button">Back to All News</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Existing Blogs List -->
+    <div class="existing-blogs">
+        <h2>Existing {{ league_name }} Blogs ({{ league_news.count }})</h2>
+        {% if league_news %}
+            <div class="blog-list">
+                {% for news in league_news %}
+                <div class="blog-item">
+                    <div class="blog-info">
+                        <h3><a href="/admin/blog/news/{{ news.id }}/change/">{{ news.title }}</a></h3>
+                        <p class="blog-meta">
+                            <strong>Author:</strong> {{ news.author }} | 
+                            <strong>Category:</strong> {{ news.category.name }} | 
+                            <strong>Published:</strong> {{ news.published_at|date:"M d, Y" }} |
+                            <strong>Status:</strong> {{ news.get_status_display }}
+                        </p>
+                        <p class="blog-excerpt">{{ news.excerpt|truncatewords:20 }}</p>
+                    </div>
+                    <div class="blog-actions">
+                        <a href="/admin/blog/news/{{ news.id }}/change/" class="button">Edit</a>
+                        <a href="{% url 'blog:news_detail' news.id %}" class="button" target="_blank">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-blogs">No blogs found for {{ league_name }}. Create your first blog post above!</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.league-admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.add-blog-form {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.form-actions .button {
+    padding: 10px 20px;
+    background: #007cba;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.form-actions .button:hover {
+    background: #005a87;
+}
+
+.existing-blogs {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.blog-list {
+    margin-top: 20px;
+}
+
+.blog-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background: #fafafa;
+}
+
+.blog-info {
+    flex: 1;
+}
+
+.blog-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.blog-info h3 a {
+    color: #007cba;
+    text-decoration: none;
+}
+
+.blog-info h3 a:hover {
+    text-decoration: underline;
+}
+
+.blog-meta {
+    font-size: 12px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.blog-excerpt {
+    font-size: 14px;
+    color: #333;
+    margin: 10px 0 0 0;
+    line-height: 1.4;
+}
+
+.blog-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.blog-actions .button {
+    padding: 6px 12px;
+    background: #007cba;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.blog-actions .button:hover {
+    background: #005a87;
+}
+
+.no-blogs {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+}
+</style>
+
+    </div>
+</div>
+{% endblock %}

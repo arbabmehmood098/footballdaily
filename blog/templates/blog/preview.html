@@ -1,0 +1,588 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Preview - FootballDaily.live{% endblock %}
+
+{% block description %}Preview the latest football content and updates from FootballDaily.live{% endblock %}
+
+{% block content %}
+<div class="preview-page">
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <div class="container">
+            <h1>Match Previews</h1>
+            <p>Get detailed analysis and predictions for upcoming football matches</p>
+        </div>
+    </div>
+
+    <!-- League Cards Grid -->
+    <div class="container" style="padding: 2rem 0;">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 2rem; font-size: 2rem; color: var(--primary-text);">Select a League</h2>
+        <div class="leagues-cards-grid">
+            <!-- Premier League -->
+            <div class="league-card" onclick="openPreviewModal('Premier League')" data-league="Premier League">
+                
+                <h3 class="league-card-title">Premier League</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-premier-league">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- Serie A -->
+            <div class="league-card" onclick="openPreviewModal('Serie A')" data-league="Serie A">
+               
+                <h3 class="league-card-title">Serie A</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-serie-a">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- Bundesliga -->
+            <div class="league-card" onclick="openPreviewModal('Bundesliga')" data-league="Bundesliga">
+                
+                <h3 class="league-card-title">Bundesliga</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-bundesliga">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- Ligue 1 -->
+            <div class="league-card" onclick="openPreviewModal('Ligue 1')" data-league="Ligue 1">
+                
+                <h3 class="league-card-title">Ligue 1</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-ligue-1">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- La Liga -->
+            <div class="league-card" onclick="openPreviewModal('La Liga')" data-league="La Liga">
+               
+                <h3 class="league-card-title">La Liga</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-la-liga">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- MLS -->
+            <div class="league-card" onclick="openPreviewModal('MLS')" data-league="MLS">
+             
+                <h3 class="league-card-title">MLS</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-mls">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- Süper Lig -->
+            <div class="league-card" onclick="openPreviewModal('Süper Lig')" data-league="Süper Lig">
+              
+                <h3 class="league-card-title">Süper Lig</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-super-lig">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+
+            <!-- EFL Championship -->
+            <div class="league-card" onclick="openPreviewModal('EFL Championship')" data-league="EFL Championship">
+                
+                <h3 class="league-card-title">EFL Championship</h3>
+                <div class="league-card-info">
+                    <span class="match-count" id="count-efl">View available matches</span>
+                </div>
+                <div class="league-card-action">
+                    <span>View Previews →</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for League Previews -->
+    {% if leagues_previews %}
+        {% for league, previews in leagues_previews.items %}
+        <div id="modal-{{ league|slugify }}" class="preview-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>{{ league }} - Match Previews</h2>
+                    <span class="close-modal" onclick="closePreviewModal('{{ league|escapejs }}')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="match-previews-grid">
+                        {% for preview in previews %}
+                        <div class="match-preview-card">
+                            <div class="match-header">
+                                <h3>{{ preview.home_team }} vs {{ preview.away_team }}</h3>
+                                <div class="match-meta">
+                                    <span class="match-date">{{ preview.match_date|date:"d M Y, H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="match-venue">
+                                <strong>Venue:</strong> {{ preview.venue }}
+                            </div>
+                            <div class="match-intro">
+                                <p>{{ preview.introduction|truncatewords:35 }}</p>
+                            </div>
+                            <div class="match-prediction">
+                                <strong>Prediction:</strong> <span class="prediction-text">{{ preview.prediction }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<style>
+/* Preview Header */
+.preview-header {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.preview-header h1 {
+    position: relative;
+    z-index: 2;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.preview-header p {
+    position: relative;
+    z-index: 2;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* League Cards Grid */
+.leagues-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 0;
+}
+
+.league-card {
+    background: var(--surface-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 0;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--box-shadow);
+    color: var(--primary-text);
+    position: relative;
+    overflow: hidden;
+}
+
+.league-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.league-card:hover::before {
+    left: 100%;
+}
+
+.league-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--box-shadow-hover);
+    border-color: var(--accent-primary);
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+}
+
+.league-card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.league-card:hover .league-card-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.league-card-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.league-card-info {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--primary-text-alt);
+    transition: all 0.3s ease;
+}
+
+.league-card:hover .league-card-info {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.league-card-action {
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent-primary);
+    color: white;
+    border-radius: 0;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.league-card:hover .league-card-action {
+    background: white;
+    color: var(--accent-primary);
+    transform: translateX(5px);
+}
+
+/* Modal Styles */
+.preview-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: var(--surface-bg);
+    margin: 2% auto;
+    padding: 0;
+    border-radius: 0;
+    border: 2px solid var(--border-color);
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideIn 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideIn {
+    from { 
+        transform: translateY(-50px) scale(0.95); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0) scale(1); 
+        opacity: 1; 
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--accent-primary-hover);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.close-modal {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.close-modal:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+    padding: 2rem;
+    max-height: calc(90vh - 100px);
+    overflow-y: auto;
+    background: var(--primary-bg);
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 0;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary-hover);
+}
+
+.match-previews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.match-preview-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 0;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.match-preview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-primary);
+    transition: width 0.3s ease;
+}
+
+.match-preview-card:hover::before {
+    width: 100%;
+    opacity: 0.05;
+}
+
+.match-preview-card:hover {
+    box-shadow: var(--box-shadow-hover);
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+}
+
+.match-header h3 {
+    color: var(--primary-text);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.match-meta {
+    color: var(--primary-text-alt);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.match-date::before {
+    content: '📅';
+    margin-right: 0.25rem;
+}
+
+.match-venue, .match-intro, .match-prediction {
+    margin-bottom: 1rem;
+    color: var(--primary-text);
+}
+
+.match-venue strong,
+.match-prediction strong {
+    color: var(--accent-primary);
+}
+
+.prediction-text {
+    color: var(--accent-primary-hover);
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .preview-header h1 {
+        font-size: 2rem;
+    }
+    
+    .preview-header p {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .leagues-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .league-card {
+        padding: 1.5rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .match-previews-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .match-preview-card {
+        padding: 1rem;
+    }
+    
+    .match-header h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .preview-header {
+        padding: 2rem 0;
+    }
+    
+    .preview-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .league-card-icon {
+        font-size: 2.5rem;
+    }
+    
+    .league-card-title {
+        font-size: 1.2rem;
+    }
+    
+    .close-modal {
+        width: 35px;
+        height: 35px;
+        font-size: 2rem;
+    }
+}
+</style>
+
+<script>
+function openPreviewModal(leagueName) {
+    const modalId = 'modal-' + leagueName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    } else {
+        // Show alert if no data available
+        alert('No match previews available for ' + leagueName + ' at this time. Check back soon!');
+    }
+}
+
+function closePreviewModal(leagueName) {
+    const modalId = 'modal-' + leagueName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target.classList.contains('preview-modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.preview-modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
+        document.body.style.overflow = 'auto';
+    }
+});
+
+</script>
+{% endblock %}

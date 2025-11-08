@@ -1,0 +1,1302 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}FootballDaily.live - Latest Football News & Updates{% endblock %}
+
+{% block description %}Get the latest football news, transfer updates, and match analysis from Premier League, Serie A, Bundesliga, La Liga, MLS, and Süper Lig. Your ultimate destination for football coverage.{% endblock %}
+
+{% block keywords %}football news, premier league news, serie a updates, bundesliga, la liga, mls, super lig, football transfers, match analysis, football daily{% endblock %}
+
+{% block og_title %}FootballDaily.live - Latest Football News & Updates{% endblock %}
+
+{% block og_description %}Get the latest football news, transfer updates, and match analysis from Premier League, Serie A, Bundesliga, La Liga, MLS, and Süper Lig. Your ultimate destination for football coverage.{% endblock %}
+
+{% block twitter_title %}FootballDaily.live - Latest Football News & Updates{% endblock %}
+
+{% block twitter_description %}Get the latest football news, transfer updates, and match analysis from Premier League, Serie A, Bundesliga, La Liga, MLS, and Süper Lig. Your ultimate destination for football coverage.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+
+{% block schema_type %}WebSite{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <!-- Hero Section -->
+    <div class="home-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 id="typing-title">FootballDaily.live</h1>
+                
+                <!-- Rotating League Slider -->
+                <div class="league-rotator">
+                    <div class="league-circle">
+                        <div class="league-item active" data-league="Premier League">Premier League</div>
+                        <div class="league-item" data-league="Serie A">Serie A</div>
+                        <div class="league-item" data-league="Bundesliga">Bundesliga</div>
+                        <div class="league-item" data-league="Ligue 1">Ligue 1</div>
+                        <div class="league-item" data-league="La Liga">La Liga</div>
+                        <div class="league-item" data-league="MLS">MLS</div>
+                        <div class="league-item" data-league="Süper Lig">Süper Lig</div>
+                        <div class="league-item" data-league="EFL Championship">EFL Championship</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="padding: 2rem 0;">
+        <div class="section-header">
+            <h2>Latest Football News</h2>
+            <p>Stay updated with the most recent stories from the world of football</p>
+        </div>
+        
+        <div class="blog-layout">
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dynamic Articles from Database -->
+            {% if latest_news %}
+                <!-- Article Structured Data -->
+                <script type="application/ld+json">
+                [
+                    {% for article in latest_news %}
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "NewsArticle",
+                        "headline": "{{ article.title|escapejs }}",
+                        "description": "{% if article.excerpt %}{{ article.excerpt|escapejs }}{% else %}{{ article.content|truncatewords:30|escapejs }}{% endif %}",
+                        "image": "{% if article.featured_image %}{{ article.featured_image.url }}{% endif %}",
+                        "author": {
+                            "@type": "Person",
+                            "name": "{{ article.author|escapejs }}"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "FootballDaily.live",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "{% static 'blog/images/logo.png' %}"
+                            }
+                        },
+                        "datePublished": "{{ article.published_at|date:'c' }}",
+                        "dateModified": "{{ article.updated_at|date:'c' }}",
+                        "mainEntityOfPage": {
+                            "@type": "WebPage",
+                            "@id": "{{ request.build_absolute_uri }}"
+                        },
+                        "articleSection": "{{ article.get_league_display|escapejs }}",
+                        "keywords": "{{ article.category.name|escapejs }}, {{ article.get_league_display|escapejs }}"
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+                </script>
+                
+                {% for article in latest_news %}
+                <article class="blog-card enhanced-card" 
+                    data-title="{{ article.title|escapejs }}"
+                    data-author="{{ article.author|escapejs }}"
+                    data-date="{{ article.published_at|date:'d M, Y' }}"
+                    data-league="{{ article.get_league_display|escapejs }}"
+                    data-category="{{ article.category.name|escapejs }}"
+                    data-excerpt="{% if article.excerpt %}{{ article.excerpt|escapejs }}{% else %}{{ article.content|truncatewords:30|escapejs }}{% endif %}"
+                    data-content="{{ article.content|escapejs }}"
+                    data-image="{% if article.featured_image %}{{ article.featured_image.url }}{% else %}none{% endif %}"
+                    data-article-id="{{ article.id }}"
+                    onclick="openBlogModalFromCard(this)" 
+                    style="cursor: pointer;">
+                    <div class="article-image">
+                        {% if article.featured_image %}
+                            <img src="{{ article.featured_image.url }}" 
+                                 alt="{{ article.title }}" 
+                                 loading="lazy"
+                                 width="400" 
+                                 height="250" />
+                        {% else %}
+                            <div class="no-image-placeholder" role="img" aria-label="No image available">
+                                <span>📰</span>
+                                <p>No Image</p>
+                            </div>
+                        {% endif %}
+                        {% if article.is_live %}
+                        <div class="live-badge">LIVE</div>
+                        {% endif %}
+                        {% if article.is_featured %}
+                        <div class="featured-badge">FEATURED</div>
+                        {% endif %}
+                    </div>
+                    <div class="article-content">
+                        <div class="article-categories">
+                            <span class="category-tag league-tag">{{ article.get_league_display }}</span>
+                            <span class="category-tag category-tag">{{ article.category.name }}</span>
+                        </div>
+                        <h2 class="article-title">
+                            {{ article.title }}
+                        </h2>
+                        <div class="article-meta">
+                            <span class="author">
+                                <span class="author-icon">👤</span>
+                                {{ article.author }}
+                            </span>
+                            <span class="date">
+                                <span class="date-icon">📅</span>
+                                {{ article.published_at|date:"d M, Y" }}
+                            </span>
+                        </div>
+                        <p class="article-excerpt">
+                            {% if article.excerpt %}
+                                {{ article.excerpt }}
+                            {% else %}
+                                {{ article.content|truncatewords:30 }}
+                            {% endif %}
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-actions">
+                                <span class="read-more">Read More →</span>
+                                <div class="social-share">
+                                    <button class="share-btn" onclick="shareArticle('{{ article.title|escapejs }}', '{{ request.build_absolute_uri }}')" aria-label="Share article">
+                                        <span>📤</span> Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <!-- No Articles Message -->
+                <div class="no-articles">
+                    <h3>No articles found</h3>
+                    <p>Check back soon for the latest football news and updates!</p>
+                    <p><a href="/admin/" class="button">Add your first article</a></p>
+                </div>
+            {% endif %}
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-widget">
+                <h3>Quick Search</h3>
+                <div class="search-form">
+                    <input type="text" placeholder="Search articles..." class="search-input">
+                    <button class="search-btn">Search</button>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>All Leagues</h3>
+                <div class="category-list">
+                    <a href="{% url 'blog:premier_league' %}" class="category-link">Premier League</a>
+                    <a href="{% url 'blog:serie_a' %}" class="category-link">Serie A</a>
+                    <a href="{% url 'blog:bundesliga' %}" class="category-link">Bundesliga</a>
+                    <a href="{% url 'blog:ligue_1' %}" class="category-link">Ligue 1</a>
+                    <a href="{% url 'blog:la_liga' %}" class="category-link">La Liga</a>
+                    <a href="{% url 'blog:mls' %}" class="category-link">MLS</a>
+                    <a href="{% url 'blog:super_lig' %}" class="category-link">Süper Lig</a>
+                    <a href="{% url 'blog:efl' %}" class="category-link">EFL Championship</a>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link facebook" title="Facebook">f</a>
+                    <a href="#" class="social-link twitter" title="Twitter">X</a>
+                    <a href="#" class="social-link instagram" title="Instagram">📷</a>
+                    <a href="#" class="social-link youtube" title="YouTube">▶</a>
+                </div>
+                <p class="social-text">Follow us for the latest updates and exclusive content!</p>
+            </div>
+
+        </aside>
+    </div>
+    </div>
+</div>
+
+<style>
+/* Home Page Specific Styles */
+.home-page {
+    min-height: 100vh;
+}
+
+.home-hero {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+    animation: slideInFromLeft 1.2s ease-out 0.3s both;
+}
+
+/* Typing Animation Styles */
+.typing-cursor::after {
+    content: '|';
+    color: white;
+    animation: blink 1s infinite;
+    font-weight: 300;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.typing-text {
+    border-right: 2px solid white;
+    animation: blink 1s infinite;
+}
+
+/* League Rotator Styles */
+.league-rotator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    animation: fadeInUp 1s ease-out 1.2s both;
+    overflow: hidden;
+    width: 100%;
+}
+
+.league-circle {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.league-item {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: white;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s ease-in-out;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.league-item.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.league-item.fade-out {
+    opacity: 0;
+    transform: translateX(-50px);
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: slideInFromRight 1.2s ease-out 0.6s both;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0;
+    animation: fadeInUp 1s ease-out 0.9s both;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    animation: scaleIn 0.8s ease-out both;
+}
+
+.stat-item:nth-child(1) { animation-delay: 1.2s; }
+.stat-item:nth-child(2) { animation-delay: 1.4s; }
+.stat-item:nth-child(3) { animation-delay: 1.6s; }
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    animation: fadeInUp 1s ease-out 1.8s both;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 0;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+    border: 2px solid transparent;
+    animation: slideInFromBottom 0.8s ease-out both;
+}
+
+.btn:nth-child(1) { animation-delay: 2s; }
+.btn:nth-child(2) { animation-delay: 2.2s; }
+
+.btn-primary {
+    background: white;
+    color: var(--accent-primary);
+    border-color: white;
+}
+
+.btn-primary:hover {
+    background: var(--neutral-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border-color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    color: var(--primary-text);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: var(--primary-text-alt);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.league-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.league-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: var(--neutral-light);
+    text-decoration: none;
+    color: var(--primary-text);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.league-card:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.league-flag {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.league-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.social-text {
+    font-size: 0.9rem;
+    color: var(--primary-text-alt);
+    margin-top: 1rem;
+    text-align: center;
+}
+
+
+/* Enhanced Blog Card Styles */
+.enhanced-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+.enhanced-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.live-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--highlight-red);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+    z-index: 2;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--highlight-gold);
+    color: var(--primary-text);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.league-tag {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.category-tag {
+    background: var(--neutral-gray);
+    color: var(--primary-text);
+}
+
+.author-icon,
+.date-icon {
+    margin-right: 0.25rem;
+    opacity: 0.7;
+}
+
+.article-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.article-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.read-more {
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.enhanced-card:hover .read-more {
+    color: var(--accent-primary-hover);
+    transform: translateX(5px);
+}
+
+.social-share {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.share-btn {
+    background: var(--neutral-light);
+    border: 1px solid var(--border-color);
+    color: var(--primary-text);
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.share-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+
+/* Accessibility improvements */
+.enhanced-card:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+.share-btn:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* Enhanced Responsive Design */
+
+/* Extra Large Devices (1400px and up) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .hero-content h1 {
+        font-size: 3.5rem;
+    }
+    
+    .league-item {
+        font-size: 1.6rem;
+    }
+    
+    .section-header h2 {
+        font-size: 3rem;
+    }
+    
+    .blog-layout {
+        gap: 3rem;
+    }
+}
+
+/* Large Devices (1200px to 1399px) */
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .hero-content h1 {
+        font-size: 3rem;
+    }
+    
+    .league-item {
+        font-size: 1.5rem;
+    }
+}
+
+/* Desktop and Laptop (992px to 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .container {
+        max-width: 960px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.8rem;
+    }
+    
+    .league-item {
+        font-size: 1.4rem;
+    }
+    
+    .blog-layout {
+        gap: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Tablet Landscape (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .container {
+        max-width: 720px;
+        padding: 0 15px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .league-item {
+        font-size: 1.3rem;
+    }
+    
+    .blog-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
+    
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .stat-item {
+        flex: 1;
+        min-width: 150px;
+        max-width: 200px;
+    }
+}
+
+/* Tablet Portrait (576px to 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    .container {
+        max-width: 540px;
+        padding: 0 15px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.2rem;
+        line-height: 1.3;
+    }
+    
+    .league-item {
+        font-size: 1.2rem;
+    }
+    
+    .blog-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
+    
+    .section-header h2 {
+        font-size: 2rem;
+    }
+    
+    .section-header p {
+        font-size: 1rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 280px;
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* Mobile Landscape (480px to 575px) */
+@media (min-width: 480px) and (max-width: 575px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .league-item {
+        font-size: 1.1rem;
+    }
+    
+    .blog-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
+    
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .section-header p {
+        font-size: 0.95rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .stat-item {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        padding: 0.8rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 260px;
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Portrait (320px to 479px) */
+@media (max-width: 479px) {
+    .container {
+        padding: 0 8px;
+    }
+    
+    .home-hero {
+        padding: 1.5rem 0;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    
+    .league-rotator {
+        margin: 1.5rem 0;
+    }
+    
+    .league-item {
+        font-size: 1rem;
+        height: 50px;
+    }
+    
+    .blog-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .sidebar {
+        order: -1;
+    }
+    
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.6rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .section-header p {
+        font-size: 0.9rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 0.6rem;
+        margin: 1rem 0;
+    }
+    
+    .stat-item {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+        padding: 0.6rem;
+    }
+    
+    .stat-number {
+        font-size: 1.3rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        margin-top: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 240px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Enhanced mobile card styles */
+    .enhanced-card {
+        margin-bottom: 1rem;
+    }
+    
+    .article-content {
+        padding: 1rem;
+    }
+    
+    .article-title {
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+    
+    .article-excerpt {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .article-meta {
+        font-size: 0.8rem;
+        gap: 0.5rem;
+    }
+    
+    .category-tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .share-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Mobile sidebar adjustments */
+    .sidebar-widget {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .search-form {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .search-input {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .search-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .social-links {
+        gap: 0.8rem;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+
+/* Extra Small Devices (280px to 319px) */
+@media (max-width: 319px) {
+    .container {
+        padding: 0 5px;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.6rem;
+        line-height: 1.1;
+    }
+    
+    .league-item {
+        font-size: 0.9rem;
+        height: 45px;
+    }
+    
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .section-header p {
+        font-size: 0.85rem;
+    }
+    
+    .stat-item {
+        max-width: 220px;
+        padding: 0.5rem;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .btn {
+        max-width: 220px;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .article-content {
+        padding: 0.8rem;
+    }
+    
+    .article-title {
+        font-size: 1rem;
+    }
+    
+    .article-excerpt {
+        font-size: 0.8rem;
+    }
+    
+    .social-link {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .home-hero {
+        padding: 1rem 0;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .league-rotator {
+        margin: 1rem 0;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 1rem;
+        margin: 0.8rem 0;
+    }
+    
+    .stat-item {
+        padding: 0.5rem;
+    }
+    
+    .hero-actions {
+        margin-top: 0.8rem;
+    }
+}
+
+/* High DPI / Retina Display Adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hero-content h1 {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .league-item {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .home-hero,
+    .sidebar,
+    .hero-actions,
+    .social-share,
+    .share-btn {
+        display: none;
+    }
+    
+    .blog-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .enhanced-card {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Hero Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Text Animation for Title */
+.hero-content h1 {
+    overflow: hidden;
+}
+
+.hero-content h1::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s ease-in-out 2.5s;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Pulse Animation for Stats */
+.stat-number {
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: 3s;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Typing animation for title only
+    const titleElement = document.getElementById('typing-title');
+    const titleText = "FootballDaily.live";
+    
+    let titleIndex = 0;
+    let isDeleting = false;
+    let isTitleComplete = false;
+    
+    function typeText() {
+        if (!isDeleting && titleIndex <= titleText.length) {
+            titleElement.textContent = titleText.substring(0, titleIndex);
+            titleElement.classList.add('typing-cursor');
+            titleIndex++;
+        } else if (isDeleting && titleIndex >= 0) {
+            titleElement.textContent = titleText.substring(0, titleIndex);
+            titleIndex--;
+        }
+        
+        if (titleIndex === titleText.length + 1) {
+            setTimeout(() => { isDeleting = true; }, 2000); // Wait 2 seconds before deleting
+        } else if (titleIndex === -1) {
+            isDeleting = false;
+            isTitleComplete = true;
+            titleElement.classList.remove('typing-cursor');
+            // Reset for continuous loop
+            setTimeout(() => {
+                titleIndex = 0;
+                isTitleComplete = false;
+                isDeleting = false;
+            }, 1000);
+        }
+        
+        // Adjust typing speed
+        let speed = isDeleting ? 50 : 100;
+        if (isDeleting) speed /= 2; // Faster when deleting
+        
+        setTimeout(typeText, speed);
+    }
+    
+    // Start typing animation after initial page load
+    setTimeout(typeText, 1000);
+    
+    // League rotator animation - show one league at a time like a text slider
+    const leagueItems = document.querySelectorAll('.league-item');
+    let currentIndex = 0;
+    
+    function updateLeagueDisplay() {
+        // Hide current item
+        leagueItems[currentIndex].classList.remove('active');
+        leagueItems[currentIndex].classList.add('fade-out');
+        
+        // Move to next league
+        currentIndex = (currentIndex + 1) % leagueItems.length;
+        
+        // Show next league
+        setTimeout(() => {
+            leagueItems.forEach(item => {
+                item.classList.remove('fade-out');
+            });
+            leagueItems[currentIndex].classList.add('active');
+        }, 100);
+    }
+    
+    // Start league rotation after typing animation starts
+    setTimeout(() => {
+        setInterval(updateLeagueDisplay, 2000); // 2 seconds = 2000ms
+    }, 2000);
+    
+    // Social sharing functionality
+    window.shareArticle = function(title, url) {
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            }).catch(console.error);
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Link copied to clipboard!');
+            });
+        }
+    };
+    
+});
+</script>
+{% endblock %}

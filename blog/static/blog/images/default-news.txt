@@ -1,0 +1,2 @@
+This is a placeholder for the default news image.
+Please replace this with an actual image file (default-news.jpg) for news articles without featured images.

@@ -1,0 +1,156 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | Football Daily Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-content {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .admin-header {
+        background: #007cba;
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .admin-header h1 {
+        margin: 0;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .admin-actions a {
+        color: white;
+        text-decoration: none;
+        margin: 0 1rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid white;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-actions a:hover {
+        background: white;
+        color: #007cba;
+    }
+    
+    .app-list {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin: 0 auto;
+        max-width: 1200px;
+    }
+</style>
+
+<div class="admin-header">
+    <div class="container">
+        <h1>Football Daily Administration</h1>
+        <div class="admin-actions">
+            <a href="/">View Site</a>
+            <a href="/admin/logout/">Log out</a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-content">
+    <div class="container">
+        <div class="app-list">
+    <!-- Authentication and Authorization -->
+    <div class="app-auth module">
+        <table>
+            <caption>
+                <a href="#" class="section" title="Authentication and Authorization">Authentication and Authorization</a>
+            </caption>
+            <tbody>
+                <tr class="model-group">
+                    <th scope="row">
+                        <a href="/admin/auth/group/">Groups</a>
+                    </th>
+                    <td><a href="/admin/auth/group/add/" class="addlink">Add</a></td>
+                    <td><a href="/admin/auth/group/" class="changelink">Change</a></td>
+                </tr>
+                <tr class="model-user">
+                    <th scope="row">
+                        <a href="/admin/auth/user/">Users</a>
+                    </th>
+                    <td><a href="/admin/auth/user/add/" class="addlink">Add</a></td>
+                    <td><a href="/admin/auth/user/" class="changelink">Change</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Football Leagues -->
+    <div class="app-blog module">
+        <table>
+            <caption>
+                <a href="#" class="section" title="Football Leagues">Football Leagues</a>
+            </caption>
+            <tbody>
+                <tr class="model-premier-league">
+                    <th scope="row">
+                        <a href="/admin/blog/news/premier-league/">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</a>
+                    </th>
+                    <td><a href="/admin/blog/news/premier-league/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-serie-a">
+                    <th scope="row">
+                        <a href="/admin/blog/news/serie-a/">🇮🇹 Serie A</a>
+                    </th>
+                    <td><a href="/admin/blog/news/serie-a/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-bundesliga">
+                    <th scope="row">
+                        <a href="/admin/blog/news/bundesliga/">🇩🇪 Bundesliga</a>
+                    </th>
+                    <td><a href="/admin/blog/news/bundesliga/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-ligue-1">
+                    <th scope="row">
+                        <a href="/admin/blog/news/ligue-1/">🇫🇷 Ligue 1</a>
+                    </th>
+                    <td><a href="/admin/blog/news/ligue-1/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-la-liga">
+                    <th scope="row">
+                        <a href="/admin/blog/news/la-liga/">🇪🇸 La Liga</a>
+                    </th>
+                    <td><a href="/admin/blog/news/la-liga/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-mls">
+                    <th scope="row">
+                        <a href="/admin/blog/news/mls/">🇺🇸 MLS</a>
+                    </th>
+                    <td><a href="/admin/blog/news/mls/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-super-lig">
+                    <th scope="row">
+                        <a href="/admin/blog/news/super-lig/">🇹🇷 Süper Lig</a>
+                    </th>
+                    <td><a href="/admin/blog/news/super-lig/" class="addlink">Manage Blogs</a></td>
+                </tr>
+                <tr class="model-efl">
+                    <th scope="row">
+                        <a href="/admin/blog/news/efl/">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EFL</a>
+                    </th>
+                    <td><a href="/admin/blog/news/efl/" class="addlink">Manage Blogs</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

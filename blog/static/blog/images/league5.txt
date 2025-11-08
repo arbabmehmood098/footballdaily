@@ -1,0 +1,3 @@
+Placeholder for league5.jpg
+This should be replaced with league-specific images for league history.
+Recommended size: 200x150px or similar aspect ratio.

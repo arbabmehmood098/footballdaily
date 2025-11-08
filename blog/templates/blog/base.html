@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FootballDaily.live - Your Daily Football News{% endblock %}</title>
+    <meta name="description" content="{% block description %}Get the latest football news and updates from around the world.{% endblock %}">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'blog/css/style.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'blog/images/favicon.ico' %}">
+    
+    <!-- Fresh & Modern Color Palette -->
+    <style>
+        :root {
+            /* Fresh & Modern Color Scheme */
+            --primary-bg: #F1F5F9;          /* Light Blue-Gray - Main background */
+            --primary-text: #0F172A;         /* Dark Blue - Primary text */
+            --primary-text-alt: #64748B;     /* Slate Gray - Secondary text */
+            --surface-bg: #F1F5F9;           /* Light Blue-Gray surfaces */
+            --accent-primary: #1E40AF;       /* Blue - Primary accent */
+            --accent-primary-hover: #7C3AED; /* Purple - Hover state */
+            --accent-secondary: #7C3AED;     /* Purple - Secondary accent */
+            --accent-black: #0F172A;         /* Dark Blue for dark elements */
+            --highlight-gold: #10B981;       /* Emerald - Highlight color */
+            --highlight-red: #EF4444;        /* Red - Alert/breaking news */
+            --neutral-light: #E2E8F0;        /* Light Gray - Subtle backgrounds */
+            --neutral-gray: #CBD5E1;         /* Medium Gray - Dividers and borders */
+            --border-color: #CBD5E1;         /* Medium Gray borders */
+            --disabled-color: #94A3B8;       /* Light Gray for disabled elements */
+            --border-radius: 0;
+            --box-shadow: 0 2px 10px rgba(30, 64, 175, 0.08);
+            --box-shadow-hover: 0 6px 24px rgba(30, 64, 175, 0.12);
+            --transition: all 0.3s ease;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    {% include 'blog/header.html' %}
+
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <button class="fab fab-preview" onclick="openPreview()" title="Preview">
+            <span class="fab-text">Preview</span>
+        </button>
+        <button class="fab fab-transfer" onclick="openTransferNews()" title="Transfer News">
+            <span class="fab-text">Transfer News</span>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FootballDaily.live</h3>
+                    <p>Your premier destination for football news and updates from around the world.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="{% url 'blog:home' %}">Home</a>
+                    <a href="{% url 'blog:news_list' %}">Latest News</a>
+                    <a href="{% url 'blog:about' %}">About Us</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Categories</h3>
+                    <a href="#">Premier League</a>
+                    <a href="#">Champions League</a>
+                    <a href="#">La Liga</a>
+                    <a href="#">Serie A</a>
+                    <a href="#">Bundesliga</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <a href="#">Twitter</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">YouTube</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FootballDaily.live. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Get CSRF token from Django
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                   getCookie('csrftoken') || 
+                   '{{ csrf_token }}';
+        }
+    </script>
+    
+    <!-- Blog Modal JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('blogModal');
+            const closeBtn = document.getElementsByClassName('close')[0];
+            
+            // Close modal when clicking the X
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Function to open modal with article data
+            window.openBlogModal = function(articleData) {
+                // Populate modal with article data
+                document.getElementById('modalTitle').textContent = articleData.title;
+                document.getElementById('modalAuthor').textContent = articleData.author;
+                document.getElementById('modalDate').textContent = articleData.date;
+                document.getElementById('modalLeague').textContent = articleData.league;
+                document.getElementById('modalCategory').textContent = articleData.category;
+                document.getElementById('modalExcerpt').textContent = articleData.excerpt;
+                document.getElementById('modalContent').textContent = articleData.content;
+                
+                // Handle image
+                const modalImage = document.getElementById('modalImage');
+                if (articleData.image && articleData.image.trim() !== '' && articleData.image !== 'none') {
+                    modalImage.src = articleData.image;
+                    modalImage.alt = articleData.title;
+                    modalImage.style.display = 'block';
+                } else {
+                    modalImage.style.display = 'none';
+                }
+                
+                // Show modal
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Function to navigate to article detail page
+            window.openBlogModalFromCard = function(cardElement) {
+                // Get the article ID from the card element
+                const articleId = cardElement.getAttribute('data-article-id');
+                if (articleId) {
+                    // Navigate to the article detail page
+                    window.location.href = `/news/${articleId}/`;
+                }
+            }
+
+            // Search Functionality
+            function initializeSearch() {
+                const searchInputs = document.querySelectorAll('.search-input');
+                const searchButtons = document.querySelectorAll('.search-btn');
+                
+                searchInputs.forEach(input => {
+                    // Real-time search as user types
+                    input.addEventListener('input', function() {
+                        const searchTerm = this.value.toLowerCase().trim();
+                        performSearch(searchTerm);
+                        showSearchSuggestions(this, searchTerm);
+                    });
+                    
+                    // Search on Enter key
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            const searchTerm = this.value.toLowerCase().trim();
+                            performSearch(searchTerm);
+                            hideSearchSuggestions(this);
+                        }
+                    });
+                    
+                    // Hide suggestions when clicking outside
+                    input.addEventListener('blur', function() {
+                        setTimeout(() => hideSearchSuggestions(this), 200);
+                    });
+                    
+                    // Show suggestions when focusing
+                    input.addEventListener('focus', function() {
+                        if (this.value.trim() !== '') {
+                            showSearchSuggestions(this, this.value.toLowerCase().trim());
+                        }
+                    });
+                });
+                
+                searchButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const searchInput = this.parentElement.querySelector('.search-input');
+                        const searchTerm = searchInput.value.toLowerCase().trim();
+                        performSearch(searchTerm);
+                        hideSearchSuggestions(searchInput);
+                    });
+                });
+            }
+
+            function showSearchSuggestions(input, searchTerm) {
+                if (searchTerm.length < 2) {
+                    hideSearchSuggestions(input);
+                    return;
+                }
+                
+                const suggestions = getSearchSuggestions(searchTerm);
+                if (suggestions.length === 0) {
+                    hideSearchSuggestions(input);
+                    return;
+                }
+                
+                let suggestionsContainer = input.parentElement.querySelector('.search-suggestions');
+                if (!suggestionsContainer) {
+                    suggestionsContainer = document.createElement('div');
+                    suggestionsContainer.className = 'search-suggestions';
+                    suggestionsContainer.style.cssText = `
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: var(--surface-bg);
+                        border: 1px solid var(--border-color);
+                        border-top: none;
+                        border-radius: 0;
+                        max-height: 200px;
+                        overflow-y: auto;
+                        z-index: 1000;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                        scrollbar-width: none;
+                        -ms-overflow-style: none;
+                    `;
+                    input.parentElement.style.position = 'relative';
+                    input.parentElement.appendChild(suggestionsContainer);
+                    
+                    // Add webkit scrollbar hiding
+                    suggestionsContainer.style.setProperty('-webkit-scrollbar', 'display: none', 'important');
+                }
+                
+                suggestionsContainer.innerHTML = suggestions.map(suggestion => 
+                    `<div class="suggestion-item" style="padding: 0.5rem; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s ease; color: var(--primary-text);" 
+                         onmouseover="this.style.background='var(--neutral-light)'" 
+                         onmouseout="this.style.background='var(--surface-bg)'"
+                         onclick="selectSuggestion(this, '${suggestion}')">${suggestion}</div>`
+                ).join('');
+                
+                suggestionsContainer.style.display = 'block';
+            }
+
+            function hideSearchSuggestions(input) {
+                const suggestionsContainer = input.parentElement.querySelector('.search-suggestions');
+                if (suggestionsContainer) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            }
+
+            function getSearchSuggestions(searchTerm) {
+                const articles = document.querySelectorAll('.blog-card, .news-card, .enhanced-card');
+                const suggestions = new Set();
+                
+                articles.forEach(article => {
+                    const title = article.getAttribute('data-title') || '';
+                    const league = article.getAttribute('data-league') || '';
+                    const category = article.getAttribute('data-category') || '';
+                    const author = article.getAttribute('data-author') || '';
+                    
+                    // Extract words that start with the search term
+                    [title, league, category, author].forEach(text => {
+                        const words = text.toLowerCase().split(/\s+/);
+                        words.forEach(word => {
+                            if (word.startsWith(searchTerm) && word.length > searchTerm.length) {
+                                suggestions.add(word);
+                            }
+                        });
+                    });
+                });
+                
+                return Array.from(suggestions).slice(0, 5); // Limit to 5 suggestions
+            }
+
+            function selectSuggestion(element, suggestion) {
+                const input = element.closest('.search-form').querySelector('.search-input');
+                input.value = suggestion;
+                performSearch(suggestion.toLowerCase());
+                hideSearchSuggestions(input);
+            }
+
+            function performSearch(searchTerm) {
+                const articles = document.querySelectorAll('.blog-card, .news-card, .enhanced-card');
+                const noResultsMessage = document.querySelector('.no-articles');
+                let hasResults = false;
+                
+                articles.forEach(article => {
+                    const title = article.getAttribute('data-title') ? article.getAttribute('data-title').toLowerCase() : '';
+                    const content = article.getAttribute('data-content') ? article.getAttribute('data-content').toLowerCase() : '';
+                    const excerpt = article.getAttribute('data-excerpt') ? article.getAttribute('data-excerpt').toLowerCase() : '';
+                    const author = article.getAttribute('data-author') ? article.getAttribute('data-author').toLowerCase() : '';
+                    const league = article.getAttribute('data-league') ? article.getAttribute('data-league').toLowerCase() : '';
+                    const category = article.getAttribute('data-category') ? article.getAttribute('data-category').toLowerCase() : '';
+                    
+                    const searchableText = `${title} ${content} ${excerpt} ${author} ${league} ${category}`;
+                    
+                    if (searchTerm === '' || searchableText.includes(searchTerm)) {
+                        article.style.display = 'block';
+                        article.style.animation = 'fadeInUp 0.5s ease-out';
+                        hasResults = true;
+                        
+                        // Highlight search terms in visible articles
+                        if (searchTerm !== '') {
+                            highlightSearchTerms(article, searchTerm);
+                        } else {
+                            removeHighlights(article);
+                        }
+                    } else {
+                        article.style.display = 'none';
+                        removeHighlights(article);
+                    }
+                });
+                
+                // Show/hide no results message
+                if (noResultsMessage) {
+                    if (searchTerm !== '' && !hasResults) {
+                        noResultsMessage.style.display = 'block';
+                        noResultsMessage.innerHTML = `
+                            <h3>No articles found</h3>
+                            <p>No articles match your search for "<strong>${searchTerm}</strong>"</p>
+                            <p>Try different keywords or check your spelling.</p>
+                            <div style="margin-top: 1rem;">
+                                <strong>Search tips:</strong>
+                                <ul style="text-align: left; display: inline-block; margin-top: 0.5rem;">
+                                    <li>Try shorter keywords</li>
+                                    <li>Check spelling</li>
+                                    <li>Use different terms</li>
+                                    <li>Search by league or author</li>
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        noResultsMessage.style.display = 'none';
+                    }
+                }
+                
+                // Update search results counter
+                updateSearchResults(searchTerm, hasResults);
+            }
+
+            function highlightSearchTerms(article, searchTerm) {
+                const titleElement = article.querySelector('.article-title');
+                const excerptElement = article.querySelector('.article-excerpt');
+                
+                if (titleElement) {
+                    highlightText(titleElement, searchTerm);
+                }
+                if (excerptElement) {
+                    highlightText(excerptElement, searchTerm);
+                }
+            }
+
+            function highlightText(element, searchTerm) {
+                const text = element.textContent;
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                const highlightedText = text.replace(regex, '<span class="search-highlight">$1</span>');
+                element.innerHTML = highlightedText;
+            }
+
+            function removeHighlights(article) {
+                const highlightedElements = article.querySelectorAll('.search-highlight');
+                highlightedElements.forEach(element => {
+                    const parent = element.parentNode;
+                    parent.replaceChild(document.createTextNode(element.textContent), element);
+                    parent.normalize();
+                });
+            }
+
+            function updateSearchResults(searchTerm, hasResults) {
+                const articles = document.querySelectorAll('.blog-card, .news-card, .enhanced-card');
+                const visibleCount = Array.from(articles).filter(article => 
+                    article.style.display !== 'none'
+                ).length;
+                
+                // Add search results indicator
+                let resultsIndicator = document.querySelector('.search-results-indicator');
+                if (!resultsIndicator) {
+                    resultsIndicator = document.createElement('div');
+                    resultsIndicator.className = 'search-results-indicator';
+                    resultsIndicator.style.cssText = `
+                        text-align: center;
+                        margin: 1rem 0;
+                        padding: 1rem;
+                        background: var(--neutral-light);
+                        border: 1px solid var(--border-color);
+                        border-radius: 0;
+                        font-size: 0.9rem;
+                        color: var(--primary-text-alt);
+                    `;
+                    
+                    const mainContent = document.querySelector('.main-content');
+                    if (mainContent) {
+                        mainContent.insertBefore(resultsIndicator, mainContent.firstChild);
+                    }
+                }
+                
+                if (searchTerm !== '') {
+                    resultsIndicator.style.display = 'block';
+                    resultsIndicator.innerHTML = `
+                        <strong>${visibleCount}</strong> article${visibleCount !== 1 ? 's' : ''} found for "<strong>${searchTerm}</strong>"
+                        <button onclick="clearSearch()" style="margin-left: 1rem; padding: 0.25rem 0.75rem; background: var(--accent-primary); color: white; border: none; border-radius: 0; cursor: pointer; font-size: 0.8rem;">Clear</button>
+                    `;
+                } else {
+                    resultsIndicator.style.display = 'none';
+                }
+            }
+
+            window.clearSearch = function() {
+                const searchInputs = document.querySelectorAll('.search-input');
+                searchInputs.forEach(input => {
+                    input.value = '';
+                });
+                performSearch('');
+            }
+
+            // Initialize search functionality
+            initializeSearch();
+
+            // Floating Action Buttons functionality
+            window.openPreview = function() {
+                window.location.href = '/preview/';
+            };
+
+            window.openTransferNews = function() {
+                window.location.href = '/transfer-news/';
+            };
+
+        });
+
+    </script>
+    
+    <!-- Blog Modal -->
+    <div id="blogModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-meta">
+                    <span id="modalAuthor"></span>
+                    <span id="modalDate"></span>
+                    <span id="modalLeague"></span>
+                    <span id="modalCategory"></span>
+                </div>
+                <div class="modal-image">
+                    <img id="modalImage" src="" alt="" style="display: none;">
+                </div>
+                <div class="modal-excerpt">
+                    <p id="modalExcerpt"></p>
+                </div>
+                <div class="modal-content-text">
+                    <p id="modalContent"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
