@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['footballdaily.live', 'www.footballdaily.live']
+ALLOWED_HOSTS = ['footballdaily.live', 'www.footballdaily.live', 'footballapp-a31c0aaa52fa.herokuapp.com']
 
 
 # Application definition
